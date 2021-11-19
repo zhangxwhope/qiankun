@@ -3,7 +3,7 @@ import App from "./App.vue";
 import VueRouter from "vue-router";
 import routes from "./router";
 import store from "./store";
-import { registerMicroApps, start } from 'qiankun';
+import { registerMicroApps, start, initGlobalState } from 'qiankun';
 
 Vue.config.productionTip = false;
 
@@ -36,6 +36,32 @@ export async function bootstrap() {
 }
 export async function mount(props: any) {
   console.log('[vue] props from main framework', props);
+  props.onGlobalStateChange((state: any, prev: any) => {
+    // state: 变更后的状态; prev 变更前的状态
+    if (state.data !== prev.data) {
+      console.log(state, '子应用 state');
+      console.log(prev, '子应用 prev');
+    }
+  });
+
+  const data = {
+    data: 'global data change by vueAppBase'
+  }
+  props.setGlobalState(data)
+
+  const actions = initGlobalState(data)
+  actions.onGlobalStateChange((state: any, prev: any) => {
+    if (state.data !== prev.data) {
+      console.log(state, 'vueAppBase state');
+      console.log(prev, 'vueAppBase prev');
+      props.setGlobalState(state)
+    }
+  })
+  actions.setGlobalState({
+    data: 'global data change by middle'
+  })
+
+  // props.setGlobalState(state);
   render(props);
 }
 export async function unmount() {
@@ -49,13 +75,13 @@ export async function unmount() {
 registerMicroApps([
   {
     name: 'reactApp',
-    entry: '//localhost:3000',
+    entry: '//localhost:3001',
     container: '#container',
     activeRule: isAlone ? '/app-react' : '/app-vue-base/app-react',
   },
   {
     name: 'vueApp',
-    entry: '//localhost:8083',
+    entry: '//localhost:8081',
     container: '#container',
     activeRule: isAlone ? '/app-vue' : '/app-vue-base/app-vue',
   }
@@ -63,8 +89,5 @@ registerMicroApps([
 
 // 启动 qiankun
 start({
-  excludeAssetFilter(assetUrl: string) {
-    console.log("excludeAssetFilter -> assetUrl", assetUrl)
-    return false
-  },
+  prefetch: false
 });

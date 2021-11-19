@@ -38,6 +38,13 @@ export async function bootstrap() {
 
 export async function mount(props: any) {
   console.log('[vue] props from main framework', props);
+  props.onGlobalStateChange((state: any, prev: any) => {
+    // state: 变更后的状态; prev 变更前的状态
+    console.log(state, prev);
+  });
+  props.setGlobalState({
+    data: 'global data change by vueApp'
+  })
   render(props);
 }
 

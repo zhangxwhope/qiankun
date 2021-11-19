@@ -18,17 +18,33 @@ ReactDOM.render(
 );
 
 // 注册微应用
-registerMicroApps([
+registerMicroApps(
+  [
+    {
+      name: 'vueAppBase',
+      entry: '//localhost:8082',
+      container: '#container1',
+      activeRule: '/app-vue-base',
+      loader: (loading) => { console.log(loading, 'loading') },
+      props: {
+        data: {
+          text: 'This a data from main app'
+        }
+      }
+    },
+  ],
   {
-    name: 'vueAppBase',
-    entry: '//localhost:8082',
-    container: '#container1',
-    activeRule: '/app-vue-base',
-  },
-]);
+    afterMount: (app) => {
+      console.log('afterMount')
+      console.log("app", app)
+    }
+  }
+);
 
 // 启动 qiankun
-start();
+start({
+  prefetch: false
+});
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

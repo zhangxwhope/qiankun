@@ -11,6 +11,27 @@
   </div>
 </template>
 
+<script lang="ts">
+import Vue from "vue";
+import {
+  addGlobalUncaughtErrorHandler,
+  removeGlobalUncaughtErrorHandler,
+} from "qiankun";
+
+export default Vue.extend({
+  mounted() {
+    // 全局的未捕获异常处理
+    const errorHandler = (event: any) => {
+      console.log("errorHandler -> event", event);
+    };
+    addGlobalUncaughtErrorHandler(errorHandler);
+    this.$once("hook:beforeDestroy", () => {
+      removeGlobalUncaughtErrorHandler(errorHandler);
+    });
+  },
+});
+</script>
+
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
